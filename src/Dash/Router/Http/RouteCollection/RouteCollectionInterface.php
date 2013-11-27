@@ -26,21 +26,25 @@ interface RouteCollectionInterface extends Iterator
      * When two routes shares the same priority, the last one inserted takes
      * precedence.
      *
-     * @param string               $name
-     * @param RouteInterface|array $route
-     * @param int                  $priority
+     * @param  string               $name
+     * @param  RouteInterface|array $route
+     * @param  int                  $priority
+     * @return void
      */
     public function insert($name, $route, $priority = 1);
 
     /**
      * Removes a route from the list.
      *
-     * @param string $name
+     * @param  string $name
+     * @return void
      */
     public function remove($name);
 
     /**
      * Clears the entire list.
+     *
+     * @return void
      */
     public function clear();
 

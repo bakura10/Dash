@@ -136,6 +136,9 @@ class Generic implements RouteInterface
         $this->children = $children;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function match(HttpRequest $request, $pathOffset)
     {
         $uri = $request->getUri();
@@ -162,7 +165,7 @@ class Generic implements RouteInterface
                 return null;
             }
 
-            $pathOffset += $pathResult->getMatchLength();
+            $pathOffset          += $pathResult->getMatchLength();
             $completePathMatched = ($pathOffset === strlen($uri->getPath()));
         }
 
@@ -204,6 +207,7 @@ class Generic implements RouteInterface
         }
 
         $match->merge($childMatch);
+
         return $match;
     }
 

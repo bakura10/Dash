@@ -39,13 +39,17 @@ class RouteCollection implements RouteCollectionInterface
     protected $sorted = false;
 
     /**
-     * @param ServiceLocatorInterface $routeBuilder
+     * @param ServiceLocatorInterface $routeManager
      */
     public function __construct(ServiceLocatorInterface $routeManager)
     {
         $this->routeManager = $routeManager;
     }
 
+    /**
+     * {@inheritDoc}
+     * @throws Exception\InvalidArgumentException
+     */
     public function insert($name, $route, $priority = 1)
     {
         if (!($route instanceof RouteInterface || is_array($route))) {
@@ -66,15 +70,17 @@ class RouteCollection implements RouteCollectionInterface
         ];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function remove($name)
     {
-        if (!isset($this->routes[$name])) {
-            return;
-        }
-
         unset($this->routes[$name]);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function clear()
     {
         $this->routes = [];
@@ -82,6 +88,9 @@ class RouteCollection implements RouteCollectionInterface
         $this->sorted = true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function get($name)
     {
         if (!isset($this->routes[$name])) {
@@ -99,23 +108,41 @@ class RouteCollection implements RouteCollectionInterface
         return $route;
     }
 
+    /**
+     * ------------------------------------------------------
+     * IMPLEMENTATION OF ITERATOR INTERFACE
+     * ------------------------------------------------------
+     */
+
+    /**
+     * {@inheritDoc}
+     */
     public function current()
     {
         $node = current($this->routes);
         return ($node !== false ? $this->get(key($this->routes)) : false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function key()
     {
         return key($this->routes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function next()
     {
         $node = next($this->routes);
         return ($node !== false ? $this->get(key($this->routes)) : false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function rewind()
     {
         if (!$this->sorted) {
@@ -126,6 +153,9 @@ class RouteCollection implements RouteCollectionInterface
         reset($this->routes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function valid()
     {
         return ($this->current() !== false);
