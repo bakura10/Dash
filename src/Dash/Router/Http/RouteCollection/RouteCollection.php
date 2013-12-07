@@ -108,7 +108,7 @@ class RouteCollection implements RouteCollectionInterface
         return $route;
     }
 
-    /**
+    /*
      * ------------------------------------------------------
      * IMPLEMENTATION OF ITERATOR INTERFACE
      * ------------------------------------------------------
