@@ -138,7 +138,7 @@ class RouteCollectionTest extends TestCase
 
         $orders = [];
 
-        foreach ($this->collection->getRoutes() as $key => $value) {
+        foreach ($this->collection as $key => $value) {
             $orders[] = $key;
         }
 
@@ -153,7 +153,7 @@ class RouteCollectionTest extends TestCase
 
         $orders = [];
 
-        foreach ($this->collection->getRoutes() as $key => $value) {
+        foreach ($this->collection as $key => $value) {
             $orders[] = $key;
         }
 
@@ -168,7 +168,7 @@ class RouteCollectionTest extends TestCase
 
         $orders = [];
 
-        foreach ($this->collection->getRoutes() as $key => $value) {
+        foreach ($this->collection as $key => $value) {
             $orders[] = $key;
         }
 
@@ -183,7 +183,7 @@ class RouteCollectionTest extends TestCase
 
         $orders = [];
 
-        foreach ($this->collection->getRoutes() as $key => $value) {
+        foreach ($this->collection as $key => $value) {
             $orders[] = $key;
         }
 
@@ -194,7 +194,7 @@ class RouteCollectionTest extends TestCase
     {
         $count = 0;
 
-        foreach ($collection->getRoutes() as $item) {
+        foreach ($collection as $item) {
             $count++;
         }
 

@@ -202,7 +202,7 @@ class Generic implements RouteInterface
         $schemeNotAllowedResult = null;
         $childMatch             = null;
 
-        foreach ($this->children->getRoutes() as $childName => $childRoute) {
+        foreach ($this->children as $childName => $childRoute) {
             if (null === ($childMatch = $childRoute->match($request, $pathOffset))) {
                 continue;
             }

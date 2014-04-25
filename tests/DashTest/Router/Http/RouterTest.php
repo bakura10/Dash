@@ -62,6 +62,9 @@ class RouterTest extends TestCase
     public function testMatchSetsBaseUri()
     {
         $routeCollection = $this->getMock(RouteCollectionInterface::class);
+        $routeCollection->expects($this->once())
+            ->method('getIterator')
+            ->will($this->returnValue(new \ArrayIterator()));
         $router          = new Router($routeCollection);
 
         $router->match($this->getHttpRequest());

@@ -11,6 +11,7 @@ namespace Dash\Router\Http\RouteCollection;
 
 use Dash\Router\Exception;
 use Dash\Router\Http\Route\RouteInterface;
+use Traversable;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
@@ -101,18 +102,18 @@ class RouteCollection implements RouteCollectionInterface
         return $route;
     }
 
-    public function getRoutes()
+    /**
+     * {@inheritDoc}
+     */
+    public function getIterator()
     {
         if (!$this->sorted) {
             arsort($this->routes);
             $this->sorted = true;
         }
 
-        reset($this->routes);
-
         foreach ($this->routes as $name => $route) {
-            // NOTE: when a key => value is emitted, it must be surrounded by parenthesis
-            (yield $name => $this->get($name));
+            yield $name => $this->get($name);
         }
     }
 }

@@ -11,12 +11,12 @@ namespace Dash\Router\Http\RouteCollection;
 
 use Dash\Router\Exception;
 use Dash\Router\Http\Route\RouteInterface;
-use Iterator;
+use IteratorAggregate;
 
 /**
  * Interface every route collection must implement.
  */
-interface RouteCollectionInterface
+interface RouteCollectionInterface extends IteratorAggregate
 {
     /**
      * Inserts a new route into the list.
@@ -44,13 +44,6 @@ interface RouteCollectionInterface
      * Clears the entire list.
      */
     public function clear();
-
-    /**
-     * Get a list of routes
-     *
-     * @return array
-     */
-    public function getRoutes();
 
     /**
      * Gets a specific route.
