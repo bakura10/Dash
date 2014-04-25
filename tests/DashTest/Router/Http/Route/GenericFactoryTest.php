@@ -16,8 +16,8 @@ use Dash\Router\Http\Route\RouteManager;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Uri\Http as HttpUri;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Uri\Http as HttpUri;
 
 /**
  * @covers Dash\Router\Http\Route\GenericFactory

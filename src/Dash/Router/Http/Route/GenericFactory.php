@@ -12,8 +12,8 @@ namespace Dash\Router\Http\Route;
 use Dash\Router\Http\Parser\ParserManager;
 use Dash\Router\Http\RouteCollection\RouteCollection;
 use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\MutableCreationOptionsInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 class GenericFactory implements FactoryInterface, MutableCreationOptionsInterface
 {

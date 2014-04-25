@@ -10,8 +10,8 @@
 namespace Dash\Router\Http\Parser;
 
 use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\MutableCreationOptionsInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Factory for path segments.

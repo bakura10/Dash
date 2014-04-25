@@ -11,7 +11,6 @@ namespace Dash\Router\Http\RouteCollection;
 
 use Dash\Router\Exception;
 use Dash\Router\Http\Route\RouteInterface;
-use Traversable;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
