@@ -9,8 +9,12 @@
 
 namespace DashTest\Router\Http\RouteCollection;
 
+use Dash\Router\Exception\InvalidArgumentException;
+use Dash\Router\Exception\OutOfBoundsException;
+use Dash\Router\Http\Route\RouteInterface;
 use Dash\Router\Http\RouteCollection\RouteCollection;
 use PHPUnit_Framework_TestCase as TestCase;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * @covers Dash\Router\Http\RouteCollection\RouteCollection
@@ -34,9 +38,9 @@ class RouteCollectionTest extends TestCase
 
     public function setUp()
     {
-        $this->serviceLocator = $this->getMock('Zend\ServiceManager\ServiceLocatorInterface');
+        $this->serviceLocator = $this->getMock(ServiceLocatorInterface::class);
         $this->collection     = new RouteCollection($this->serviceLocator);
-        $this->mockRoute      = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $this->mockRoute      = $this->getMock(RouteInterface::class);
     }
 
     public function testInsertWithRoute()
@@ -83,7 +87,7 @@ class RouteCollectionTest extends TestCase
     public function testInsertInvalidRoute()
     {
         $this->setExpectedException(
-            'Dash\Router\Exception\InvalidArgumentException',
+            InvalidArgumentException::class,
             '$route must either be an array or implement Dash\Router\Http\Route\RouteInterface, string given'
         );
         $this->collection->insert('foo', 'bar', 0);
@@ -112,7 +116,6 @@ class RouteCollectionTest extends TestCase
         $this->assertEquals(2, $this->countCollection($this->collection));
         $this->collection->clear();
         $this->assertEquals(0, $this->countCollection($this->collection));
-        $this->assertSame(false, $this->collection->current());
     }
 
     public function testGet()
@@ -123,7 +126,7 @@ class RouteCollectionTest extends TestCase
 
     public function testGetNonExistentRoute()
     {
-        $this->setExpectedException('Dash\Router\Exception\OutOfBoundsException', 'Route with name "foo" was not found');
+        $this->setExpectedException(OutOfBoundsException::class, 'Route with name "foo" was not found');
         $this->collection->get('foo');
     }
 
@@ -135,7 +138,7 @@ class RouteCollectionTest extends TestCase
 
         $orders = [];
 
-        foreach ($this->collection as $key => $value) {
+        foreach ($this->collection->getRoutes() as $key => $value) {
             $orders[] = $key;
         }
 
@@ -150,7 +153,7 @@ class RouteCollectionTest extends TestCase
 
         $orders = [];
 
-        foreach ($this->collection as $key => $value) {
+        foreach ($this->collection->getRoutes() as $key => $value) {
             $orders[] = $key;
         }
 
@@ -165,7 +168,7 @@ class RouteCollectionTest extends TestCase
 
         $orders = [];
 
-        foreach ($this->collection as $key => $value) {
+        foreach ($this->collection->getRoutes() as $key => $value) {
             $orders[] = $key;
         }
 
@@ -180,7 +183,7 @@ class RouteCollectionTest extends TestCase
 
         $orders = [];
 
-        foreach ($this->collection as $key => $value) {
+        foreach ($this->collection->getRoutes() as $key => $value) {
             $orders[] = $key;
         }
 
@@ -191,7 +194,7 @@ class RouteCollectionTest extends TestCase
     {
         $count = 0;
 
-        foreach ($collection as $item) {
+        foreach ($collection->getRoutes() as $item) {
             $count++;
         }
 

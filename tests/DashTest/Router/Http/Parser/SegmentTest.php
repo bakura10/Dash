@@ -9,6 +9,9 @@
 
 namespace DashTest\Router\Http\Parser;
 
+use Dash\Router\Exception\InvalidArgumentException;
+use Dash\Router\Exception\RuntimeException;
+use Dash\Router\Http\Parser\ParseResult;
 use Dash\Router\Http\Parser\Segment;
 use PHPUnit_Framework_TestCase as TestCase;
 
@@ -154,17 +157,17 @@ class SegmentTest extends TestCase
         return [
             'unbalanced-brackets' => [
                 '[',
-                'Dash\Router\Exception\RuntimeException',
+                RuntimeException::class,
                 'Found unbalanced brackets'
             ],
             'closing-bracket-without-opening-bracket' => [
                 ']',
-                'Dash\Router\Exception\RuntimeException',
+                RuntimeException::class,
                 'Found closing bracket without matching opening bracket'
             ],
             'empty-parameter-name' => [
                 ':',
-                'Dash\Router\Exception\RuntimeException',
+                RuntimeException::class,
                 'Found empty parameter name'
             ],
         ];
@@ -184,7 +187,7 @@ class SegmentTest extends TestCase
         if ($params === null) {
             $this->assertNull($result);
         } else {
-            $this->assertInstanceOf('Dash\Router\Http\Parser\ParseResult', $result);
+            $this->assertInstanceOf(ParseResult::class, $result);
             $this->assertEquals($params, $result->getParams());
         }
     }
@@ -223,7 +226,7 @@ class SegmentTest extends TestCase
 
     public function testCompileWithMissingParameterInRoot()
     {
-        $this->setExpectedException('Dash\Router\Exception\InvalidArgumentException', 'Missing parameter "foo"');
+        $this->setExpectedException(InvalidArgumentException::class, 'Missing parameter "foo"');
         $route = new Segment('/', '/:foo', []);
         $route->compile([], []);
     }

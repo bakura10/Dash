@@ -101,24 +101,7 @@ class RouteCollection implements RouteCollectionInterface
         return $route;
     }
 
-    public function current()
-    {
-        $node = current($this->routes);
-        return ($node !== false ? $this->get(key($this->routes)) : false);
-    }
-
-    public function key()
-    {
-        return key($this->routes);
-    }
-
-    public function next()
-    {
-        $node = next($this->routes);
-        return ($node !== false ? $this->get(key($this->routes)) : false);
-    }
-
-    public function rewind()
+    public function getRoutes()
     {
         if (!$this->sorted) {
             arsort($this->routes);
@@ -126,10 +109,10 @@ class RouteCollection implements RouteCollectionInterface
         }
 
         reset($this->routes);
-    }
 
-    public function valid()
-    {
-        return ($this->current() !== false);
+        foreach ($this->routes as $name => $route) {
+            // NOTE: when a key => value is emitted, it must be surrounded by parenthesis
+            (yield $name => $this->get($name));
+        }
     }
 }

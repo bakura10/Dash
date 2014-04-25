@@ -20,7 +20,7 @@ class RouteManager extends AbstractPluginManager
     protected $shareByDefault = false;
 
     protected $factories = [
-        'generic' => 'Dash\Router\Http\Route\GenericFactory',
+        'generic' => GenericFactory::class,
     ];
 
     public function validatePlugin($plugin)

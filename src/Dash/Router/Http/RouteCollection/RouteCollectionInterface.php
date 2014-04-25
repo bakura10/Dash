@@ -16,7 +16,7 @@ use Iterator;
 /**
  * Interface every route collection must implement.
  */
-interface RouteCollectionInterface extends Iterator
+interface RouteCollectionInterface
 {
     /**
      * Inserts a new route into the list.
@@ -44,6 +44,13 @@ interface RouteCollectionInterface extends Iterator
      * Clears the entire list.
      */
     public function clear();
+
+    /**
+     * Get a list of routes
+     *
+     * @return array
+     */
+    public function getRoutes();
 
     /**
      * Gets a specific route.

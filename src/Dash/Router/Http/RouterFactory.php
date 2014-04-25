@@ -9,6 +9,7 @@
 
 namespace Dash\Router\Http;
 
+use Dash\Router\Http\Route\RouteManager;
 use Dash\Router\Http\RouteCollection\RouteCollection;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -23,7 +24,7 @@ class RouterFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $routeCollection = new RouteCollection($serviceLocator->get('Dash\Router\Http\Route\RouteManager'));
+        $routeCollection = new RouteCollection($serviceLocator->get(RouteManager::class));
         $router          = new Router($routeCollection);
         $config          = $serviceLocator->get('config');
 

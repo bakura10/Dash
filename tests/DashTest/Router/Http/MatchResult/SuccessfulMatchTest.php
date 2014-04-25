@@ -21,7 +21,7 @@ class SuccessfulMatchTest extends TestCase
     public function testExtendsBaseSuccessfulMatch()
     {
         $result = new SuccessfulMatch();
-        $this->assertInstanceOf('Dash\Router\MatchResult\SuccessfulMatch', $result);
+        $this->assertInstanceOf(SuccessfulMatch::class, $result);
     }
 
     public function testIsSuccess()

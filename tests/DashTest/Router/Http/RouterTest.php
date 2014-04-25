@@ -9,11 +9,20 @@
 
 namespace DashTest\Router\Http;
 
+use Dash\Router\Exception\UnexpectedValueException;
 use Dash\Router\Http\MatchResult\SuccessfulMatch;
 use Dash\Router\Http\Route\AssemblyResult;
+use Dash\Router\Http\Route\RouteInterface;
 use Dash\Router\Http\RouteCollection\RouteCollection;
+use Dash\Router\Http\RouteCollection\RouteCollectionInterface;
 use Dash\Router\Http\Router;
+use Dash\Router\MatchResult\AbstractFailedMatch;
+use Dash\Router\MatchResult\MatchResultInterface;
+use Dash\Router\MatchResult\UnsupportedRequest;
 use PHPUnit_Framework_TestCase as TestCase;
+use Zend\Http\PhpEnvironment\Request as HttpRequest;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\Stdlib\Request;
 use Zend\Uri\Http as HttpUri;
 
 /**
@@ -23,7 +32,7 @@ class RouterTest extends TestCase
 {
     public function testRetrieveRouteCollection()
     {
-        $routeCollection = $this->getMock('Dash\Router\Http\RouteCollection\RouteCollectionInterface');
+        $routeCollection = $this->getMock(RouteCollectionInterface::class);
         $router          = new Router($routeCollection);
 
         $this->assertSame($routeCollection, $router->getRouteCollection());
@@ -31,7 +40,7 @@ class RouterTest extends TestCase
 
     public function testSetBaseUri()
     {
-        $routeCollection = $this->getMock('Dash\Router\Http\RouteCollection\RouteCollectionInterface');
+        $routeCollection = $this->getMock(RouteCollectionInterface::class);
         $router          = new Router($routeCollection);
 
         $baseUri = new HttpUri('http://example.com/foo');
@@ -42,17 +51,17 @@ class RouterTest extends TestCase
 
     public function testMatchDeniesInvalidRequest()
     {
-        $routeCollection = $this->getMock('Dash\Router\Http\RouteCollection\RouteCollectionInterface');
+        $routeCollection = $this->getMock(RouteCollectionInterface::class);
         $router          = new Router($routeCollection);
 
-        $matchResult = $router->match($this->getMock('Zend\Stdlib\Request'));
-        $this->assertInstanceOf('Dash\Router\MatchResult\UnsupportedRequest', $matchResult);
-        $this->assertEquals('Zend\Http\Request', $matchResult->getSupportedRequestClassName());
+        $matchResult = $router->match($this->getMock(Request::class));
+        $this->assertInstanceOf(UnsupportedRequest::class, $matchResult);
+        $this->assertEquals(\Zend\Http\Request::class, $matchResult->getSupportedRequestClassName());
     }
 
     public function testMatchSetsBaseUri()
     {
-        $routeCollection = $this->getMock('Dash\Router\Http\RouteCollection\RouteCollectionInterface');
+        $routeCollection = $this->getMock(RouteCollectionInterface::class);
         $router          = new Router($routeCollection);
 
         $router->match($this->getHttpRequest());
@@ -61,19 +70,19 @@ class RouterTest extends TestCase
 
     public function testSuccessfulRouteMatchIsReturned()
     {
-        $routeCollection    = new RouteCollection($this->getMock('Zend\ServiceManager\ServiceLocatorInterface'));
+        $routeCollection    = new RouteCollection($this->getMock(ServiceLocatorInterface::class));
         $router             = new Router($routeCollection);
         $request            = $this->getHttpRequest();
         $expectedRouteMatch = new SuccessfulMatch();
 
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('match')
             ->with($this->equalTo($request))
             ->will($this->returnValue($expectedRouteMatch));
 
-        $unsuccessfulRoute = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $unsuccessfulRoute = $this->getMock(RouteInterface::class);
         $unsuccessfulRoute
             ->expects($this->once())
             ->method('match')
@@ -90,12 +99,12 @@ class RouterTest extends TestCase
 
     public function testUnsuccessfulRouteMatchIsReturned()
     {
-        $routeCollection    = new RouteCollection($this->getMock('Zend\ServiceManager\ServiceLocatorInterface'));
+        $routeCollection    = new RouteCollection($this->getMock(ServiceLocatorInterface::class));
         $router             = new Router($routeCollection);
         $request            = $this->getHttpRequest();
-        $expectedRouteMatch = $this->getMock('Dash\Router\MatchResult\AbstractFailedMatch');
+        $expectedRouteMatch = $this->getMock(AbstractFailedMatch::class);
 
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('match')
@@ -110,17 +119,17 @@ class RouterTest extends TestCase
 
     public function testExceptionOnUnexpectedSuccessfulMatchResult()
     {
-        $matchResult = $this->getMock('Dash\Router\MatchResult\MatchResultInterface');
+        $matchResult = $this->getMock(MatchResultInterface::class);
         $matchResult
             ->expects($this->once())
             ->method('isSuccess')
             ->will($this->returnValue(true));
 
-        $routeCollection    = new RouteCollection($this->getMock('Zend\ServiceManager\ServiceLocatorInterface'));
+        $routeCollection    = new RouteCollection($this->getMock(ServiceLocatorInterface::class));
         $router             = new Router($routeCollection);
         $request            = $this->getHttpRequest();
 
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('match')
@@ -130,7 +139,7 @@ class RouterTest extends TestCase
         $routeCollection->insert('foo', $route);
 
         $this->setExpectedException(
-            'Dash\Router\Exception\UnexpectedValueException',
+            UnexpectedValueException::class,
             'Expected instance of Dash\Router\Http\MatchResult\SuccessfulMatch, received'
         );
         $router->match($request);
@@ -138,7 +147,7 @@ class RouterTest extends TestCase
 
     public function testAssembleFailsWithoutRouteName()
     {
-        $routeCollection = $this->getMock('Dash\Router\Http\RouteCollection\RouteCollectionInterface');
+        $routeCollection = $this->getMock(RouteCollectionInterface::class);
         $router          = new Router($routeCollection);
 
         $this->setExpectedException('Dash\Router\Exception\RuntimeException', 'No route name was supplied');
@@ -147,7 +156,7 @@ class RouterTest extends TestCase
 
     public function testAssemblePassesDownChildName()
     {
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('assemble')
@@ -160,7 +169,7 @@ class RouterTest extends TestCase
 
     public function testAssemblePassesNullWithoutFurtherChildren()
     {
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('assemble')
@@ -173,7 +182,7 @@ class RouterTest extends TestCase
 
     public function testAssembleIgnoresTrailingSlash()
     {
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('assemble')
@@ -186,7 +195,7 @@ class RouterTest extends TestCase
 
     public function testAssembleReturnsRelativeUriWithoutModifications()
     {
-        $route  = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route  = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('assemble')
@@ -198,7 +207,7 @@ class RouterTest extends TestCase
 
     public function testAssembleReturnsCanonicalUriWithModifications()
     {
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('assemble')
@@ -215,7 +224,7 @@ class RouterTest extends TestCase
 
     public function testAssembleReturnsCanonicalUriWhenForced()
     {
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('assemble')
@@ -227,7 +236,7 @@ class RouterTest extends TestCase
 
     public function testAssembleQuery()
     {
-        $route = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('assemble')
@@ -239,7 +248,7 @@ class RouterTest extends TestCase
 
     public function testAssembleFragment()
     {
-        $route  = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $route  = $this->getMock(RouteInterface::class);
         $route
             ->expects($this->once())
             ->method('assemble')
@@ -251,7 +260,7 @@ class RouterTest extends TestCase
 
     protected function getHttpRequest()
     {
-        $request = $this->getMock('Zend\Http\PhpEnvironment\Request');
+        $request = $this->getMock(HttpRequest::class);
 
         $request
             ->expects($this->once())
@@ -268,7 +277,7 @@ class RouterTest extends TestCase
 
     protected function getAssemblyRouter(\Dash\Router\Http\Route\RouteInterface $route)
     {
-        $routeCollection = $this->getMock('Dash\Router\Http\RouteCollection\RouteCollectionInterface');
+        $routeCollection = $this->getMock(RouteCollectionInterface::class);
         $routeCollection
             ->expects($this->once())
             ->method('get')

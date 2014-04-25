@@ -11,6 +11,7 @@ namespace DashTest\Router\Http\Parser;
 
 use Dash\Router\Http\Parser\HostnameSegmentFactory;
 use PHPUnit_Framework_TestCase as TestCase;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * @covers Dash\Router\Http\Parser\HostnameSegmentFactory
@@ -20,7 +21,7 @@ class HostnameSegmentFactoryTest extends TestCase
     public function testFactoryWithoutConfiguration()
     {
         $factory = new HostnameSegmentFactory();
-        $parser  = $factory->createService($this->getMock('Zend\ServiceManager\ServiceLocatorInterface'));
+        $parser  = $factory->createService($this->getMock(ServiceLocatorInterface::class));
 
         $parseResult = $parser->parse('', 0);
         $this->assertEquals([], $parseResult->getParams());
@@ -34,7 +35,7 @@ class HostnameSegmentFactoryTest extends TestCase
             'hostname'    => ':foo.example.com',
             'constraints' => ['foo' => '1']
         ]);
-        $parser = $factory->createService($this->getMock('Zend\ServiceManager\ServiceLocatorInterface'));
+        $parser = $factory->createService($this->getMock(ServiceLocatorInterface::class));
 
         $this->assertNull($parser->parse('0.example.com', 0));
         $parseResult = $parser->parse('1.example.com', 0);
@@ -51,12 +52,12 @@ class HostnameSegmentFactoryTest extends TestCase
         ];
 
         $factory->setCreationOptions($options);
-        $parser = $factory->createService($this->getMock('Zend\ServiceManager\ServiceLocatorInterface'));
+        $parser = $factory->createService($this->getMock(ServiceLocatorInterface::class));
 
         $factory->setCreationOptions($options);
-        $this->assertSame($parser, $factory->createService($this->getMock('Zend\ServiceManager\ServiceLocatorInterface')));
+        $this->assertSame($parser, $factory->createService($this->getMock(ServiceLocatorInterface::class)));
 
         $factory->setCreationOptions([]);
-        $this->assertNotSame($parser, $factory->createService($this->getMock('Zend\ServiceManager\ServiceLocatorInterface')));
+        $this->assertNotSame($parser, $factory->createService($this->getMock(ServiceLocatorInterface::class)));
     }
 }

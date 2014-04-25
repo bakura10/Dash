@@ -10,8 +10,12 @@
 namespace DashTest;
 
 use Dash\Module;
+use Dash\Router\Http\Parser\ParserManager;
+use Dash\Router\Http\Route\RouteManager;
+use Dash\Router\Http\Router as HttpRouter;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Loader\AutoloaderFactory;
+use Zend\Loader\StandardAutoloader;
 use Zend\ServiceManager\Config;
 use Zend\ServiceManager\ServiceManager;
 
@@ -37,18 +41,18 @@ class ModuleTest extends TestCase
         $serviceManager->setService('Config', []);
 
         $this->assertInstanceOf(
-            'Dash\Router\Http\Parser\ParserManager',
-            $serviceManager->get('Dash\Router\Http\Parser\ParserManager')
+            ParserManager::class,
+            $serviceManager->get(ParserManager::class)
         );
 
         $this->assertInstanceOf(
-            'Dash\Router\Http\Route\RouteManager',
-            $serviceManager->get('Dash\Router\Http\Route\RouteManager')
+            RouteManager::class,
+            $serviceManager->get(RouteManager::class)
         );
 
         $this->assertInstanceOf(
-            'Dash\Router\Http\Router',
-            $serviceManager->get('Dash\Router\Http\Router')
+            HttpRouter::class,
+            $serviceManager->get(HttpRouter::class)
         );
     }
 
@@ -59,10 +63,10 @@ class ModuleTest extends TestCase
 
         $autoloaders = AutoloaderFactory::getRegisteredAutoloaders();
         $this->assertEquals(1, count($autoloaders));
-        $this->assertTrue(isset($autoloaders['Zend\Loader\StandardAutoloader']));
+        $this->assertTrue(isset($autoloaders[StandardAutoloader::class]));
 
-        $autoloader = $autoloaders['Zend\Loader\StandardAutoloader'];
-        $this->assertInstanceOf('Zend\Loader\StandardAutoloader', $autoloader);
+        $autoloader = $autoloaders[StandardAutoloader::class];
+        $this->assertInstanceOf(StandardAutoloader::class, $autoloader);
 
         AutoloaderFactory::unregisterAutoloaders();
     }

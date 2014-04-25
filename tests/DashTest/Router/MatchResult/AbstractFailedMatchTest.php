@@ -9,6 +9,7 @@
 
 namespace DashTest\Router\MatchResult;
 
+use Dash\Router\MatchResult\AbstractFailedMatch;
 use PHPUnit_Framework_TestCase as TestCase;
 
 /**
@@ -18,6 +19,6 @@ class AbstractFailedMatchTest extends TestCase
 {
     public function testIsSuccess()
     {
-        $this->assertFalse($this->getMock('Dash\Router\MatchResult\AbstractFailedMatch')->isSuccess());
+        $this->assertFalse($this->getMock(AbstractFailedMatch::class)->isSuccess());
     }
 }

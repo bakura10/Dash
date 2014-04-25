@@ -9,10 +9,12 @@
 
 namespace DashTest\Router\Http;
 
+use Dash\Router\Http\MatchResult\SuccessfulMatch;
 use Dash\Router\Http\Parser\ParserManager;
 use Dash\Router\Http\Route\RouteManager;
 use Dash\Router\Http\RouterFactory;
 use PHPUnit_Framework_TestCase as TestCase;
+use Zend\Http\PhpEnvironment\Request;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Uri\Http as HttpUri;
 
@@ -50,7 +52,7 @@ class RouterFactoryTest extends TestCase
         $factory = new RouterFactory();
         $router  = $factory->createService($serviceLocator);
 
-        $request = $this->getMock('Zend\Http\PhpEnvironment\Request');
+        $request = $this->getMock(Request::class);
         $request
             ->expects($this->any())
             ->method('getBaseUrl')
@@ -66,7 +68,7 @@ class RouterFactoryTest extends TestCase
 
         $match = $router->match($request);
 
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $match);
+        $this->assertInstanceOf(SuccessfulMatch::class, $match);
         $this->assertEquals('user/edit', $match->getRouteName());
         $this->assertEquals(['controller' => 'Application\Controller\UserController', 'action' => 'edit', 'id' => '1'], $match->getParams());
     }
@@ -80,11 +82,11 @@ class RouterFactoryTest extends TestCase
 
         $routeManager = new RouteManager();
         $routeManager->setServiceLocator($serviceLocator);
-        $serviceLocator->setService('Dash\Router\Http\Route\RouteManager', $routeManager);
+        $serviceLocator->setService(RouteManager::class, $routeManager);
 
         $parserManager = new ParserManager();
         $parserManager->setServiceLocator($serviceLocator);
-        $serviceLocator->setService('Dash\Router\Http\Parser\ParserManager', $parserManager);
+        $serviceLocator->setService(ParserManager::class, $parserManager);
 
         return $serviceLocator;
     }

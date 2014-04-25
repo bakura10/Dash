@@ -9,6 +9,7 @@
 
 namespace Dash\Router\Http\Route;
 
+use Dash\Router\Http\Parser\ParserManager;
 use Dash\Router\Http\RouteCollection\RouteCollection;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -38,7 +39,7 @@ class GenericFactory implements FactoryInterface, MutableCreationOptionsInterfac
         }
 
         $options       = $this->createOptions;
-        $parserManager = $routeManager->getServiceLocator()->get('Dash\Router\Http\Parser\ParserManager');
+        $parserManager = $routeManager->getServiceLocator()->get(ParserManager::class);
 
         if (!isset($options['path']) && isset($options[0])) {
             $options['path'] = $options[0];

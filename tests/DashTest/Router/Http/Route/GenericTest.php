@@ -9,13 +9,21 @@
 
 namespace DashTest\Router\Http\Route;
 
+use Dash\Router\Exception\InvalidArgumentException;
+use Dash\Router\Exception\RuntimeException;
+use Dash\Router\Exception\UnexpectedValueException;
 use Dash\Router\Http\MatchResult\MethodNotAllowed;
+use Dash\Router\Http\MatchResult\SchemeNotAllowed;
 use Dash\Router\Http\MatchResult\SuccessfulMatch;
 use Dash\Router\Http\Parser\ParseResult;
+use Dash\Router\Http\Parser\ParserInterface;
 use Dash\Router\Http\Route\Generic;
+use Dash\Router\Http\Route\RouteInterface;
 use Dash\Router\Http\RouteCollection\RouteCollection;
+use Dash\Router\MatchResult\MatchResultInterface;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Http\Request;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * @covers Dash\Router\Http\Route\Generic
@@ -50,13 +58,13 @@ class GenericTest extends TestCase
         $this->route->setPathParser($this->getSuccessfullPathParser());
         $match = $this->route->match($this->request, 4);
 
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $match);
+        $this->assertInstanceOf(SuccessfulMatch::class, $match);
         $this->assertEquals(['foo' => 'bar'], $match->getParams());
     }
 
     public function testFailedPathMatch()
     {
-        $pathParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $pathParser = $this->getMock(ParserInterface::class);
         $pathParser
             ->expects($this->once())
             ->method('parse')
@@ -79,20 +87,20 @@ class GenericTest extends TestCase
         $this->route->setHostnameParser($this->getSuccessfullHostnameParser());
         $match = $this->route->match($this->request, 4);
 
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $match);
+        $this->assertInstanceOf(SuccessfulMatch::class, $match);
         $this->assertEquals(['foo' => 'bar', 'baz' => 'bat'], $match->getParams());
     }
 
     public function testFailedHostnameMatch()
     {
-        $hostnameParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $hostnameParser = $this->getMock(ParserInterface::class);
         $hostnameParser
             ->expects($this->once())
             ->method('parse')
             ->with($this->equalTo('example.com'), $this->equalTo(0))
             ->will($this->returnValue(null));
 
-        $pathParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $pathParser = $this->getMock(ParserInterface::class);
         $pathParser
             ->expects($this->never())
             ->method('parse');
@@ -104,14 +112,14 @@ class GenericTest extends TestCase
 
     public function testIncompleteHostnameMatch()
     {
-        $hostnameParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $hostnameParser = $this->getMock(ParserInterface::class);
         $hostnameParser
             ->expects($this->once())
             ->method('parse')
             ->with($this->equalTo('example.com'), $this->equalTo(0))
             ->will($this->returnValue(new ParseResult(['baz' => 'bat'], 7)));
 
-        $pathParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $pathParser = $this->getMock(ParserInterface::class);
         $pathParser
             ->expects($this->never())
             ->method('parse');
@@ -123,7 +131,7 @@ class GenericTest extends TestCase
 
     public function testEarlyReturnOnNonSecureScheme()
     {
-        $pathParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $pathParser = $this->getMock(ParserInterface::class);
         $pathParser
             ->expects($this->never())
             ->method('parse');
@@ -132,7 +140,7 @@ class GenericTest extends TestCase
         $this->route->setSecure(true);
 
         $result = $this->route->match($this->request, 0);
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SchemeNotAllowed', $result);
+        $this->assertInstanceOf(SchemeNotAllowed::class, $result);
         $this->assertEquals('https://example.com/foo/bar', $result->getAllowedUri());
     }
 
@@ -151,7 +159,7 @@ class GenericTest extends TestCase
         $this->route->setMethods('post');
 
         $result = $this->route->match($this->request, 4);
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\MethodNotAllowed', $result);
+        $this->assertInstanceOf(MethodNotAllowed::class, $result);
         $this->assertEquals(['POST'], $result->getAllowedMethods());
     }
 
@@ -161,7 +169,7 @@ class GenericTest extends TestCase
         $this->route->setMethods('*');
         $match = $this->route->match($this->request, 4);
 
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $match);
+        $this->assertInstanceOf(SuccessfulMatch::class, $match);
         $this->assertEquals(['foo' => 'bar'], $match->getParams());
     }
 
@@ -171,7 +179,7 @@ class GenericTest extends TestCase
         $this->route->setMethods(['get', 'post']);
         $match = $this->route->match($this->request, 4);
 
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $match);
+        $this->assertInstanceOf(SuccessfulMatch::class, $match);
         $this->assertEquals(['foo' => 'bar'], $match->getParams());
     }
 
@@ -181,14 +189,14 @@ class GenericTest extends TestCase
         $this->route->setPathParser($this->getSuccessfullPathParser());
         $match = $this->route->match($this->request, 4);
 
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $match);
+        $this->assertInstanceOf(SuccessfulMatch::class, $match);
         $this->assertEquals(['foo' => 'bar', 'baz' => 'bat'], $match->getParams());
     }
 
     public function testSetMethodWithInvalidScalar()
     {
         $this->setExpectedException(
-            'Dash\Router\Exception\InvalidArgumentException',
+            InvalidArgumentException::class,
             '$methods must either be a string or an array'
         );
 
@@ -198,7 +206,7 @@ class GenericTest extends TestCase
     public function testSetInvalidMethod()
     {
         $this->setExpectedException(
-            'Dash\Router\Exception\InvalidArgumentException',
+            InvalidArgumentException::class,
             'FOO is not a valid HTTP method'
         );
 
@@ -218,18 +226,18 @@ class GenericTest extends TestCase
         $this->route->setPathParser($this->getIncompletePathParser());
         $match = $this->route->match($this->request, 4);
 
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $match);
+        $this->assertInstanceOf(SuccessfulMatch::class, $match);
         $this->assertEquals(['foo' => 'bar', 'baz' => 'bat'], $match->getParams());
     }
 
     public function testUnknownMatchResultTakesPrecedence()
     {
-        $expectedMatchResult = $this->getMock('Dash\Router\MatchResult\MatchResultInterface');
+        $expectedMatchResult = $this->getMock(MatchResultInterface::class);
         $this->assignChildren([
             'no-call',
             $expectedMatchResult,
-            $this->getMock('Dash\Router\Http\MatchResult\MethodNotAllowed', [], [], '', false),
-            $this->getMock('Dash\Router\Http\MatchResult\SchemeNotAllowed', [], [], '', false),
+            $this->getMock(MethodNotAllowed::class, [], [], '', false),
+            $this->getMock(SchemeNotAllowed::class, [], [], '', false),
             null
         ]);
         $this->route->setPathParser($this->getIncompletePathParser());
@@ -240,9 +248,9 @@ class GenericTest extends TestCase
 
     public function testFirstSchemeNotAllowedResultIsReturned()
     {
-        $expectedMatchResult = $this->getMock('Dash\Router\Http\MatchResult\SchemeNotAllowed', [], [], '', false);
+        $expectedMatchResult = $this->getMock(SchemeNotAllowed::class, [], [], '', false);
         $this->assignChildren([
-            $this->getMock('Dash\Router\Http\MatchResult\SchemeNotAllowed', [], [], '', false),
+            $this->getMock(SchemeNotAllowed::class, [], [], '', false),
             $expectedMatchResult,
         ]);
         $this->route->setPathParser($this->getIncompletePathParser());
@@ -253,9 +261,9 @@ class GenericTest extends TestCase
 
     public function testSchemeNotAllowedResultTakesPrecedence()
     {
-        $expectedMatchResult = $this->getMock('Dash\Router\Http\MatchResult\SchemeNotAllowed', [], [], '', false);
+        $expectedMatchResult = $this->getMock(SchemeNotAllowed::class, [], [], '', false);
         $this->assignChildren([
-            $this->getMock('Dash\Router\Http\MatchResult\MethodNotAllowed', [], [], '', false),
+            $this->getMock(MethodNotAllowed::class, [], [], '', false),
             $expectedMatchResult,
         ]);
         $this->route->setPathParser($this->getIncompletePathParser());
@@ -270,13 +278,13 @@ class GenericTest extends TestCase
         $this->route->setPathParser($this->getIncompletePathParser());
         $match = $this->route->match($this->request, 4);
 
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\MethodNotAllowed', $match);
+        $this->assertInstanceOf(MethodNotAllowed::class, $match);
         $this->assertEquals(['POST', 'GET'], $match->getAllowedMethods());
     }
 
     public function testExceptionOnUnexpectedSuccessfulMatchResult()
     {
-        $matchResult = $this->getMock('Dash\Router\MatchResult\MatchResultInterface');
+        $matchResult = $this->getMock(MatchResultInterface::class);
         $matchResult
             ->expects($this->once())
             ->method('isSuccess')
@@ -286,7 +294,7 @@ class GenericTest extends TestCase
         $this->route->setPathParser($this->getIncompletePathParser());
 
         $this->setExpectedException(
-            'Dash\Router\Exception\UnexpectedValueException',
+            UnexpectedValueException::class,
             'Expected instance of Dash\Router\Http\MatchResult\SuccessfulMatch, received'
         );
         $this->route->match($this->request, 4);
@@ -302,7 +310,7 @@ class GenericTest extends TestCase
 
     public function testAssembleHostname()
     {
-        $parser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $parser = $this->getMock(ParserInterface::class);
         $parser
             ->expects($this->once())
             ->method('compile')
@@ -318,7 +326,7 @@ class GenericTest extends TestCase
 
     public function testAssemblePath()
     {
-        $parser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $parser = $this->getMock(ParserInterface::class);
         $parser
             ->expects($this->once())
             ->method('compile')
@@ -334,13 +342,13 @@ class GenericTest extends TestCase
 
     public function testAssembleFailsWithoutChildren()
     {
-        $this->setExpectedException('Dash\Router\Exception\RuntimeException', 'Route has no children to assemble');
+        $this->setExpectedException(RuntimeException::class, 'Route has no children to assemble');
         $this->route->assemble([], 'foo');
     }
 
     public function testAssemblePassesDownChildName()
     {
-        $child = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $child = $this->getMock(RouteInterface::class);
         $child
             ->expects($this->once())
             ->method('assemble')
@@ -355,7 +363,7 @@ class GenericTest extends TestCase
 
     public function testAssemblePassesNullWithoutFurtherChildren()
     {
-        $child = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $child = $this->getMock(RouteInterface::class);
         $child
             ->expects($this->once())
             ->method('assemble')
@@ -370,7 +378,7 @@ class GenericTest extends TestCase
 
     public function testAssembleIgnoresTrailingSlash()
     {
-        $child = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+        $child = $this->getMock(RouteInterface::class);
         $child
             ->expects($this->once())
             ->method('assemble')
@@ -388,7 +396,7 @@ class GenericTest extends TestCase
      */
     protected function getRouteCollection()
     {
-        return new RouteCollection($this->getMock('Zend\ServiceManager\ServiceLocatorInterface'));
+        return new RouteCollection($this->getMock(ServiceLocatorInterface::class));
     }
 
     /**
@@ -396,7 +404,7 @@ class GenericTest extends TestCase
      */
     protected function getIncompletePathParser()
     {
-        $pathParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $pathParser = $this->getMock(ParserInterface::class);
         $pathParser
             ->expects($this->once())
             ->method('parse')
@@ -411,7 +419,7 @@ class GenericTest extends TestCase
      */
     protected function getSuccessfullPathParser()
     {
-        $pathParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $pathParser = $this->getMock(ParserInterface::class);
         $pathParser
             ->expects($this->once())
             ->method('parse')
@@ -426,7 +434,7 @@ class GenericTest extends TestCase
      */
     protected function getSuccessfullHostnameParser()
     {
-        $hostnameParser = $this->getMock('Dash\Router\Http\Parser\ParserInterface');
+        $hostnameParser = $this->getMock(ParserInterface::class);
         $hostnameParser
             ->expects($this->once())
             ->method('parse')
@@ -444,7 +452,7 @@ class GenericTest extends TestCase
         $routeCollection = $this->getRouteCollection();
 
         foreach ($results as $index => $result) {
-            $childRoute = $this->getMock('Dash\Router\Http\Route\RouteInterface');
+            $childRoute = $this->getMock(RouteInterface::class);
 
             if ($result === 'no-call') {
                 $childRoute

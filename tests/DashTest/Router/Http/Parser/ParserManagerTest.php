@@ -9,6 +9,7 @@
 
 namespace DashTest\Router\Http\Parser;
 
+use Dash\Router\Http\Parser\ParserInterface;
 use Dash\Router\Http\Parser\ParserManager;
 use PHPUnit_Framework_TestCase as TestCase;
 
@@ -20,7 +21,7 @@ class ParserManagerTest extends TestCase
     public function testPassOnValidPlugin()
     {
         $parserManager = new ParserManager();
-        $parserManager->validatePlugin($this->getMock('Dash\Router\Http\Parser\ParserInterface'));
+        $parserManager->validatePlugin($this->getMock(ParserInterface::class));
         // No assertions required, this will fail if an exception would occur.
     }
 

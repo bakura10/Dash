@@ -9,10 +9,13 @@
 
 namespace DashTest\Router\Http\Route;
 
+use Dash\Router\Http\MatchResult\SuccessfulMatch;
 use Dash\Router\Http\Parser\ParserManager;
 use Dash\Router\Http\Route\GenericFactory;
 use Dash\Router\Http\Route\RouteManager;
 use PHPUnit_Framework_TestCase as TestCase;
+use Zend\Http\PhpEnvironment\Request;
+use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Uri\Http as HttpUri;
 use Zend\ServiceManager\ServiceManager;
 
@@ -24,7 +27,7 @@ class GenericFactoryTest extends TestCase
     public function testFactoryWithoutConfiguration()
     {
         $factory = new GenericFactory();
-        $route   = $factory->createService($this->getMock('Zend\ServiceManager\ServiceLocatorInterface'));
+        $route   = $factory->createService($this->getMock(ServiceLocatorInterface::class));
 
         $this->assertNull($route->match($this->getHttpRequest(), 0));
     }
@@ -45,7 +48,7 @@ class GenericFactoryTest extends TestCase
         ]);
 
         $route = $factory->createService($this->getRouteManager());
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $route->match($this->getHttpRequest(), 0));
+        $this->assertInstanceOf(SuccessfulMatch::class, $route->match($this->getHttpRequest(), 0));
     }
 
     public function testPathOverwritesParameter()
@@ -64,7 +67,7 @@ class GenericFactoryTest extends TestCase
             'path' => '/foo',
         ]);
         $route = $factory->createService($this->getRouteManager());
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $route->match($this->getHttpRequest(), 0));
+        $this->assertInstanceOf(SuccessfulMatch::class, $route->match($this->getHttpRequest(), 0));
     }
 
     public function testFactoryWithSpecifiedParsers()
@@ -78,12 +81,12 @@ class GenericFactoryTest extends TestCase
         ]);
 
         $route = $factory->createService($this->getRouteManager());
-        $this->assertInstanceOf('Dash\Router\Http\MatchResult\SuccessfulMatch', $route->match($this->getHttpRequest(), 0));
+        $this->assertInstanceOf(SuccessfulMatch::class, $route->match($this->getHttpRequest(), 0));
     }
 
     protected function getHttpRequest()
     {
-        $request = $this->getMock('Zend\Http\PhpEnvironment\Request');
+        $request = $this->getMock(Request::class);
 
         $request
             ->expects($this->any())
@@ -102,7 +105,7 @@ class GenericFactoryTest extends TestCase
 
         $parserManager = new ParserManager();
         $parserManager->setServiceLocator($serviceLocator);
-        $serviceLocator->setService('Dash\Router\Http\Parser\ParserManager', $parserManager);
+        $serviceLocator->setService(ParserManager::class, $parserManager);
 
         $routeManager = new RouteManager();
         $routeManager->setServiceLocator($serviceLocator);

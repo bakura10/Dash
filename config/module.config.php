@@ -1,12 +1,18 @@
 <?php
+
+use Dash\Router\Http\Parser\ParserManager as HttpParserManager;
+use Dash\Router\Http\Route\RouteManager as HttpRouteManager;
+use Dash\Router\Http\Router as HttpRouter;
+use Dash\Router\Http\RouterFactory as HttpRouterFactory;
+
 return [
     'service_manager' => [
         'invokables' => [
-            'Dash\Router\Http\Parser\ParserManager' => 'Dash\Router\Http\Parser\ParserManager',
-            'Dash\Router\Http\Route\RouteManager' => 'Dash\Router\Http\Route\RouteManager',
+            HttpParserManager::class => HttpParserManager::class,
+            HttpRouteManager::class  => HttpRouteManager::class
         ],
         'factories' => [
-            'Dash\Router\Http\Router' => 'Dash\Router\Http\RouterFactory',
+            HttpRouter::class => HttpRouterFactory::class
         ],
     ],
 ];

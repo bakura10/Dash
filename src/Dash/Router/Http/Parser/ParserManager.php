@@ -20,8 +20,8 @@ class ParserManager extends AbstractPluginManager
     protected $shareByDefault = false;
 
     protected $factories = [
-        'pathsegment'     => 'Dash\Router\Http\Parser\PathSegmentFactory',
-        'hostnamesegment' => 'Dash\Router\Http\Parser\HostnameSegmentFactory',
+        'pathsegment'     => PathSegmentFactory::class,
+        'hostnamesegment' => HostnameSegmentFactory::class,
     ];
 
     public function validatePlugin($plugin)

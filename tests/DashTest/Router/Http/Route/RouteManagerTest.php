@@ -9,8 +9,10 @@
 
 namespace DashTest\Router\Http\Route;
 
+use Dash\Router\Http\Route\RouteInterface;
 use Dash\Router\Http\Route\RouteManager;
 use PHPUnit_Framework_TestCase as TestCase;
+use Zend\ServiceManager\Exception\RuntimeException;
 
 /**
  * @covers Dash\Router\Http\Route\RouteManager
@@ -20,14 +22,14 @@ class RouteManagerTest extends TestCase
     public function testPassOnValidPlugin()
     {
         $routeManager = new RouteManager();
-        $routeManager->validatePlugin($this->getMock('Dash\Router\Http\Route\RouteInterface'));
+        $routeManager->validatePlugin($this->getMock(RouteInterface::class));
         // No assertions required, this will fail if an exception would occur.
     }
 
     public function testFailOnInvalidPlugin()
     {
         $this->setExpectedException(
-            'Zend\ServiceManager\Exception\RuntimeException',
+            RuntimeException::class,
             'Plugin of type NULL is invalid; must implement Dash\Router\Http\Route\RouteInterface'
         );
 
