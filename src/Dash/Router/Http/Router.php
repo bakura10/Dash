@@ -11,6 +11,7 @@ namespace Dash\Router\Http;
 
 use Dash\Router\Exception;
 use Dash\Router\Http\MatchResult\SuccessfulMatch;
+use Dash\Router\Http\Route\AssembleableInterface;
 use Dash\Router\Http\Route\RouteInterface;
 use Dash\Router\Http\RouteCollection\RouteCollectionInterface;
 use Dash\Router\MatchResult\UnsuccessfulMatch;
@@ -125,14 +126,20 @@ class Router implements RouterInterface
     public function assemble(array $params, array $options)
     {
         if (!isset($options['name'])) {
-            throw new Exception\RuntimeException('No route name was supplied');
+            $assembleableRoute = $this->getAssembleableRoute($params, $options);
+            $assemblyResult    = $assembleableRoute->assemble($params);
+
+            if (null === $assembleableRoute) {
+                throw new Exception\RuntimeException('No route name was supplied or no routes could assemble');
+            }
+        } else {
+            $nameParts  = explode('/', $options['name'], 2);
+            $parentName = $nameParts[0];
+            $childName  = isset($nameParts[1]) ? $nameParts[1] : null;
+
+            $assemblyResult = $this->routeCollection->get($parentName)->assemble($params, $childName);
         }
 
-        $nameParts  = explode('/', $options['name'], 2);
-        $parentName = $nameParts[0];
-        $childName  = isset($nameParts[1]) ? $nameParts[1] : null;
-
-        $assemblyResult = $this->routeCollection->get($parentName)->assemble($params, $childName);
         $assemblyResult->path = $this->baseUri->getPath() . $assemblyResult->path;
 
         if (isset($options['query'])) {
@@ -148,5 +155,21 @@ class Router implements RouterInterface
             $this->baseUri->getHost(),
             (isset($options['force_canonical']) && $options['force_canonical'])
         );
+    }
+
+    /**
+     * @param  array $params
+     * @param  array $options
+     * @return RouteInterface|null
+     */
+    private function getAssembleableRoute(array $params, array $options)
+    {
+        foreach ($this->routeCollection as $route) {
+            if ($route instanceof AssembleableInterface && $route->canAssemble($params, $options)) {
+                return $route;
+            }
+        }
+
+        return null;
     }
 }
