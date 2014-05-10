@@ -130,7 +130,9 @@ class Router implements RouterInterface
             $assemblyResult    = $assembleableRoute->assemble($params);
 
             if (null === $assembleableRoute) {
-                throw new Exception\RuntimeException('No route name was supplied or no routes could assemble');
+                throw new Exception\RuntimeException(
+                    'No route name was supplied or no routes could assemble with the given params and options'
+                );
             }
         } else {
             $nameParts  = explode('/', $options['name'], 2);
